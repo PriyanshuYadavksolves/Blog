@@ -4,13 +4,14 @@ const bcrypt = require("bcrypt");
 
 router.post("/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password,profilePic } = req.body;
     const salt = 10;
     const hashPass = await bcrypt.hash(password, salt);
     const user = await User.create({
       username,
       email,
       password: hashPass,
+      profilePic:profilePic,
     });
     res.status(200).json(user);
   } catch (err) {
@@ -21,6 +22,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
       const { email} = req.body;
+      console.log(email)
       const pass = req.body.password
       const user = await User.findOne({ email });
       if (!user) {

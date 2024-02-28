@@ -4,6 +4,7 @@ const {connectDB} = require('./db/connectDB')
 const cors = require('cors')
 const auth = require('./routes/auth')
 const user = require('./routes/users')
+const superAdmin = require('./routes/super')
 
 
 const app = express()
@@ -17,6 +18,7 @@ app.get('/',(req,res)=>{
 
 app.use('/api/auth',auth)
 app.use('/api/user',user)
+app.use('/api/super',superAdmin)
 
 const main = async()=>{
     try {
