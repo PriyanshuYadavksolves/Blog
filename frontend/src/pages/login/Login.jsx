@@ -3,8 +3,6 @@ import "./login.css";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-
-
 const Login = () => {
     const emailRef = useRef();
     const passwordRef = useRef();
@@ -18,7 +16,12 @@ const Login = () => {
             email:emailRef.current.value,
             password: passwordRef.current.value
           })
-          res.data.isSuperAdmin && window.location.replace(`/super/${res.data._id}`)
+          if(res.data.isSuperAdmin){
+            window.location.replace(`/super/${res.data._id}`)
+          }else{
+
+            window.location.replace('/home')
+          }
         } catch (error) {
           console.log(error)
           setError(true)

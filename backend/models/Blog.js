@@ -5,7 +5,7 @@ const blogSchema = mongoose.Schema({
         type:String,
         require:[true,'Title is not Provided']
     },
-    autor:{
+    author:{
         type:String,
     },
     desc:{

@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -21,10 +21,10 @@ const SuperAdmin = () => {
           user._id === id ? { ...user, isAdmin: !user.isAdmin } : user
         )
       );
-      if(isAdmin){
-        toast.error("Removed from Admin Role")
-      }else{
-        toast.success('user is Admin Now')
+      if (isAdmin) {
+        toast.error("Removed from Admin Role");
+      } else {
+        toast.success("user is Admin Now");
       }
     } catch (error) {
       console.log(error);
@@ -72,7 +72,12 @@ const SuperAdmin = () => {
                   src={user.profilePic}
                   alt={user.username}
                 />
-                <span className="username">{user.username}</span>
+                <span className="username">
+                Author:
+            <Link to={`/super/user/?user=${user.username}`} className="link">
+              <b>{user.username}</b>
+            </Link>
+                </span>
                 <span className="email">{user.email}</span>
                 <input
                   className="input"
