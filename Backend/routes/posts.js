@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const User = require("../models/User");
 const Post = require("../models/Post");
 const cloudinary = require("cloudinary").v2;
 
@@ -9,17 +8,35 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+//GET ALL POST OF A USER
 router.get("/user/", async (req, res) => {
   const author = req.query.user;
   try {
     let posts;
-      posts = await Post.find({ username:author });
+      posts = await Post.findAll({ username:author });
     
     res.status(200).json(posts);
   } catch (err) {
     res.status(500).json(err);
   }
 });
+
+//GET POST BY TITLE NAME
+router.get('/title/', async (req, res) => {
+  const title = req.query.title.trim();
+  try {
+    let posts;
+    if (title) {
+      posts = await Post.find({ title: { $regex: new RegExp(title, 'i') } });
+    } else {
+      posts = await Post.find({});
+    }
+    res.status(200).json(posts);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 
 //CREATE POST
 router.post("/", async (req, res) => {
@@ -132,5 +149,7 @@ router.get("/", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+
 
 module.exports = router;

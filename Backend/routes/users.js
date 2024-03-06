@@ -118,4 +118,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//REQUEST FOR UPDATED ADMIN REQUEST
+router.put('/request/:id',async(req,res)=>{
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, { isRequested: true }, { new: true });
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(500).json(error)
+  }
+})
+
 module.exports = router;

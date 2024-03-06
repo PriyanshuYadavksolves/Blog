@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./register.css";
-import { Link, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -29,6 +29,7 @@ export default function Register() {
       res.data && navigate("/login");
     } catch (err) {
       setError(true);
+      console.log(err)
     }
   };
 

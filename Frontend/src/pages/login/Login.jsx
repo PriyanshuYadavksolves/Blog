@@ -1,13 +1,13 @@
 import {useRef } from "react";
 import "./login.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, loadUserData } from "../../features/user/userSlice";
 import { toast } from "react-toastify";
 
 export default function Login() {
-  const userRef = useRef();
+  const emailRef = useRef();
   const passwordRef = useRef();
   const {isFetching} = useSelector((store)=>store.user)
 
@@ -20,7 +20,7 @@ export default function Login() {
     dispatchh(LOGIN_START())
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login",{
-        username:userRef.current.value,
+        email:emailRef.current.value,
         password:passwordRef.current.value,
       })
       console.log(res.data)
@@ -40,13 +40,13 @@ export default function Login() {
     <div className="login">
       <span className="loginTitle">Login</span>
       <form className="loginForm" onSubmit={handleSubmit}>
-        <label>Username</label>
+        <label>Email</label>
         <input
-          type="text"
+          type="email"
           className="loginInput"
-          placeholder="Enter your Username"
+          placeholder="Enter your Email"
           required
-          ref = {userRef}
+          ref = {emailRef}
         />
         <label>Password</label>
         <input
@@ -60,11 +60,6 @@ export default function Login() {
           Login
         </button>
       </form>
-      {/* <button className="loginRegisterButton">
-        <Link className="link" to="/register">
-          Register
-        </Link>
-      </button> */}
     </div>
   );
 }

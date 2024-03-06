@@ -1,5 +1,6 @@
 .singlePost{
     flex:9;
+    margin-bottom: 50px;
 }
 
 .singlePostWrapper{
@@ -71,6 +72,7 @@
     color:#666;
     font-size: 18px;
     line-height: 25px;
+    margin-bottom: 20px;
 }
 
 .singlePostDesc::first-letter{
@@ -103,4 +105,7 @@
     margin-top: 20px;
 }
 
-
+.singlePostCommentSection {
+    margin-top: 20px;
+  }
+  

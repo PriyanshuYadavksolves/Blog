@@ -1,44 +1,52 @@
-/* Style for user list */
-.center{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
 }
 
 .ul {
-    width: 600px;
-    list-style-type: none;
+  width: 600px;
+  list-style-type: none;
+  border-radius: 10px;
+}
+
+.default {
+  box-shadow: 1px 1px 2px rgb(219, 211, 211);
+}
+
+.requested {
+  box-shadow: 1px 1px 2px red;
+}
+
+.admin {
+  box-shadow: 1px 1px 2px green;
 }
 
 .li {
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 1px 1px 2px rgb(219, 211, 211);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.li:hover{
-    box-shadow: 1px 1px 2px rgb(107, 107, 107);
-
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.username{
-    width: 100px;
-    cursor: pointer;
+.li:hover {
+  box-shadow: 1px 1px 2px rgb(107, 107, 107);
 }
 
-.email{
-    width: 200px;
+.username {
+  width: 100px;
+  cursor: pointer;
+}
+
+.email {
+  width: 200px;
 }
 
 .img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
 }
-
-

@@ -7,6 +7,7 @@ const authRoute = require("./routes/auth");
 const userRoute = require("./routes/users");
 const postRoute = require("./routes/posts");
 const superAdmin = require('./routes/super')
+const commentRoute = require('./routes/comment')
 const {connectDB} = require('./db/connectDB')
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use('/api/super',superAdmin)
+app.use('/api/comment',commentRoute)
 
 
 const main = async() => {

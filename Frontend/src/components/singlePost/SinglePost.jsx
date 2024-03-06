@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Comment from "../comment/Comment";
 
 export default function SinglePost() {
   const location = useLocation();
@@ -19,46 +20,47 @@ export default function SinglePost() {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [likeCount, setLikeCount] = useState(0); 
-  const [liked, setLiked] = useState(null); 
+  const [likeCount, setLikeCount] = useState(0);
+  const [liked, setLiked] = useState(null);
   const [updateMode, setUpdateMode] = useState(false);
 
 
   const handleLike = async () => {
     try {
-      const userId = userData._id; 
-      const response = await axios.put(`http://localhost:5000/api/posts/like/${Id}`, { userId });
+      const userId = userData._id;
+      const response = await axios.put(
+        `http://localhost:5000/api/posts/like/${Id}`,
+        { userId }
+      );
       if (response.status === 200) {
         setLiked(response.data.likes.includes(userData._id));
         setLikeCount(response.data.likes.length);
-        if(!liked){
-          toast.success("Post liked")
-        }else{
-          toast.info("Post unliked")
+        if (!liked) {
+          toast.success("Post liked");
+        } else {
+          toast.info("Post unliked");
         }
       } else {
-        toast.error("Something went wrong")
+        toast.error("Something went wrong");
       }
     } catch (error) {
       console.error("Error liking post:", error);
     }
   };
-  
+
   useEffect(() => {
     const getPost = async () => {
       const res = await axios.get("http://localhost:5000/api/posts/" + Id);
       setPost(res.data);
-      console.log(res.data)
       setTitle(res.data.title);
       setDesc(res.data.desc);
       setName(res.data.username);
       setImageUrl(res.data.photo);
-      setLikeCount(res.data.likes.length)
-      setLiked(res.data.likes.includes(userData._id))
+      setLikeCount(res.data.likes.length);
+      setLiked(res.data.likes.includes(userData._id));
     };
     getPost();
-  }, [Id]);
-
+  }, [Id, userData._id]);
 
   const handleDelete = async () => {
     try {
@@ -69,8 +71,8 @@ export default function SinglePost() {
       toast.success("Blog Deleted");
       navigate("/");
     } catch (err) {
-      console.log(err)
-      toast.error(err.response.data)
+      console.log(err);
+      toast.error(err.response.data);
     }
   };
 
@@ -86,6 +88,8 @@ export default function SinglePost() {
     } catch (err) {}
   };
 
+
+
   return (
     <div className="singlePost">
       <div className="singlePostWrapper">
@@ -100,14 +104,14 @@ export default function SinglePost() {
           />
         ) : (
           <h1 className="singlePostTitle">
-             <span className="singlePostLikeIcon" onClick={handleLike}>
-          {liked ? (
-            <i className="fas fa-heart"></i> 
-          ) : (
-            <i className="far fa-heart"></i> 
-          )}
-          {likeCount}
-        </span>
+            <span className="singlePostLikeIcon" onClick={handleLike}>
+              {liked ? (
+                <i className="fas fa-heart"></i>
+              ) : (
+                <i className="far fa-heart"></i>
+              )}
+              {likeCount}
+            </span>
             {title}
             {(userData?.isSuperAdmin ||
               (post.username === userData?.username && userData?.isAdmin)) && (
@@ -149,6 +153,9 @@ export default function SinglePost() {
             Update
           </button>
         )}
+
+        <Comment Id={Id}/>
+
       </div>
     </div>
   );

@@ -24,7 +24,7 @@ const SuperAdmin = () => {
       if (isAdmin) {
         toast.error("Removed from Admin Role");
       } else {
-        toast.success("user is Admin Now");
+        toast.success("User is Admin Now");
       }
     } catch (error) {
       console.log(error);
@@ -36,9 +36,9 @@ const SuperAdmin = () => {
       const res = await axios.delete("http://localhost:5000/api/super/" + id);
       console.log(res.data);
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
-      toast.success("user deleted Successfully");
+      toast.success("User deleted Successfully");
     } catch (error) {
-      toast.error("something went wrong");
+      toast.error("Something went wrong");
       console.log(error);
     }
   };
@@ -56,16 +56,21 @@ const SuperAdmin = () => {
 
   useEffect(() => {
     fetchUsers();
-  },);
+  }, []);
 
   return (
     <div className="center">
       <h1>All Users</h1>
-      <ul className="ul">
-        {users.map(
-          (user) =>
-            !user.isSuperAdmin && (
-              <li className="li" key={user._id}>
+      {users.map(
+        (user) =>
+          !user.isSuperAdmin && (
+            <ul
+              key={user._id}
+              className={`ul ${user.isRequested ? "requested" : "default"} ${
+                user.isAdmin ? "admin" : "default"
+              }`}
+            >
+              <li className="li">
                 <img
                   className="img"
                   src={user.profilePic}
@@ -91,9 +96,9 @@ const SuperAdmin = () => {
                   onClick={() => handleDelete(user._id)}
                 ></i>
               </li>
-            )
-        )}
-      </ul>
+            </ul>
+          )
+      )}
     </div>
   );
 };

@@ -2,7 +2,7 @@ import "./settings.css";
 import {useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { LOGOUT, UPDATE_FAILURE, UPDATE_START, UPDATE_SUCCESS, loadUserData } from "../../features/user/userSlice";
+import { UPDATE_FAILURE, UPDATE_START, UPDATE_SUCCESS, loadUserData } from "../../features/user/userSlice";
 import { toast } from "react-toastify";
 // import { useNavigate } from "react-router-dom";
 export default function Settings() {
