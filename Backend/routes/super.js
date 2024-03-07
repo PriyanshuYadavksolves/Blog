@@ -1,6 +1,45 @@
 const router = require('express').Router()
 const User = require('../models/User')
 
+
+//GET ALL Users
+router.post("/getUsers", async (req, res) => {
+    try {
+      const {id} = req.body
+      const user = await User.findById(id)
+      if(!user.isSuperAdmin){
+          res.status(404).json("You Are Not SuperAdmin")
+          return
+      }
+        const pageNumber = parseInt(req.query.pageNumber) || 0;
+        const limit = 6;
+        const result = {}
+        const totalPosts = await User.countDocuments()
+        // console.log("hello")
+        let startIndex = pageNumber * limit;
+        const endIndex = (pageNumber + 1) * limit;
+        result.totalPosts = totalPosts
+        if(startIndex > 0){
+          result.previous = {
+            pageNumber : pageNumber - 1,
+            limit : limit,
+          }
+        }
+        if(endIndex < (await User.countDocuments())){
+          result.next = {
+            pageNumber:pageNumber+1,
+            limit:limit,
+          }
+        }
+        result.data = await User.find().sort('_id').skip(startIndex).limit(limit)
+        // console.log(result)
+      result.rowsPerPage = limit;
+      return res.status(200).json(result)
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+
 router.put('/:id',async(req,res)=>{
     try {
         const {id} = req.params
@@ -12,20 +51,20 @@ router.put('/:id',async(req,res)=>{
     }
 })
 
-router.post('/allUser',async(req,res)=>{
-    try {
-        const {id} = req.body
-        const user = await User.findById(id)
-        if(!user.isSuperAdmin){
-            res.status(404).json("You Are Not SuperAdmin")
-            return
-        }
-        const allUser = await User.find({})
-        res.status(200).json(allUser)
-    } catch (error) {
-        res.status(500).json(error)
-    }
-})
+// router.post('/allUser',async(req,res)=>{
+//     try {
+//         const {id} = req.body
+//         const user = await User.findById(id)
+//         if(!user.isSuperAdmin){
+//             res.status(404).json("You Are Not SuperAdmin")
+//             return
+//         }
+//         const allUser = await User.find({})
+//         res.status(200).json(allUser)
+//     } catch (error) {
+//         res.status(500).json(error)
+//     }
+// })
 
 router.get('/:id',async(req,res)=>{
     try {
@@ -47,4 +86,8 @@ router.delete('/:id',async(req,res)=>{
     }
 })
 
-module.exports = router
+
+
+module.exports = router;
+
+

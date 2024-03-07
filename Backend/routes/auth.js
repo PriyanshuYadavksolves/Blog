@@ -1,29 +1,23 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const checkUserExists = require('../middleware/checkUserExists')
+const jwt = require('jsonwebtoken')
 
 //Register
-router.post("/register", async (req, res) => {
+router.post("/register",checkUserExists, async (req, res) => {
   try {
-    const email = req.body.email;
-    const username = req.body.username
-    let user;
-    user = await User.findOne({ $or: [{ email: email }, { username: username }] });
-     if(user){
-      res.status(403).json('Email/Username Already Exists')
-      return
-     }
-
+    const {username,password,email,profilePic} = req.body
     const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(req.body.password, salt);
+    const hashedPass = await bcrypt.hash(password, salt);
     const newUser = new User({
       username,
       email,
       password: hashedPass,
-      profilePic: req.body.profilePic,
+      profilePic: profilePic,
     });
 
-     user = await newUser.save();
+     const user = await newUser.save();
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json(err);
@@ -46,8 +40,11 @@ router.post("/login", async (req, res) => {
       return;
     }
 
-    const { password, ...others } = user._doc;
-    res.status(200).json(others);
+
+    const token = jwt.sign({ userId: user._id }, process.env.SECRET, { expiresIn: '3d' });
+
+    const { password,createdAt,updatedAt,__v, ...others } = user._doc;
+    res.status(200).json({others,token});
   } catch (error) {
     res.status(500).json(error);
   }

@@ -1,6 +1,8 @@
 const router = require("express").Router();
+const User = require("../models/User");
 const Post = require("../models/Post");
 const cloudinary = require("cloudinary").v2;
+const varifyToken = require('../middleware/varifyToken')
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -36,6 +38,7 @@ router.get('/title/', async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 
 
 //CREATE POST

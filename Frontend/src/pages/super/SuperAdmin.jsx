@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 
 import "./super.css";
@@ -10,6 +11,7 @@ const SuperAdmin = () => {
   const location = useLocation();
   const [users, setUsers] = useState([]);
   const id = location.pathname.split("/")[2];
+  const [pageNumber, setPageNumber] = useState(0);
 
   const handleCheckboxChange = async (id, isAdmin) => {
     try {
@@ -45,10 +47,17 @@ const SuperAdmin = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/super/allUser", {
-        id,
-      });
-      setUsers(res.data);
+      const res = await axios.post(
+        "http://localhost:5000/api/super/getUsers?pageNumber=" + pageNumber,
+        {
+          id,
+        }
+      );
+      console.log("hello");
+      setUsers((prevUsers) => [...prevUsers, ...res.data.data]);
+      console.log(res.data);
+      setPageNumber(pageNumber + 1);
+      toast.success("Page : " + res.data.next.pageNumber);
     } catch (error) {
       console.log(error);
     }
@@ -58,8 +67,20 @@ const SuperAdmin = () => {
     fetchUsers();
   }, []);
 
+  const handleScroll = (e) => {
+    // console.log("hi");
+    const bottom =
+      e.target.scrollHeight - Math.ceil(e.target.scrollTop) <=
+      e.target.clientHeight;
+    console.log(bottom);
+    if (bottom) {
+      console.log("line 77");
+      fetchUsers();
+    }
+  };
+
   return (
-    <div className="center">
+    <div className="center" onScroll={handleScroll}>
       <h1>All Users</h1>
       {users.map(
         (user) =>

@@ -1,35 +1,52 @@
 import { useState } from "react";
 import "./register.css";
-import {useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function Register() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to track password visibility
-  const [error, setError] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(false);
+    setIsFetching(true);
+
+    if (password.length < 6) {
+      toast.error("Password should be at least 6 characters long");
+      setIsFetching(false);
+      return;
+    }
+
+    if (username.trim() === "" || email.trim() === "" || password.trim() === "") {
+      toast.error("Input Field Can't Be Empty");
+      setIsFetching(false);
+      return;
+    }
+
     try {
       const res = await axios.post("http://localhost:5000/api/auth/register", {
         username,
         email,
         password,
-        profilePic:
-          "https://tse1.mm.bing.net/th?id=OIP.KEJaw671I5WYuftNN0IOZAAAAA&pid=Api&P=0&h=220",
+        profilePic: "https://tse1.mm.bing.net/th?id=OIP.KEJaw671I5WYuftNN0IOZAAAAA&pid=Api&P=0&h=220",
       });
-      //  res.data && window.location.replace("/login")
+      
       toast.success("User Created Successfully");
       res.data && navigate("/login");
     } catch (err) {
-      setError(true);
-      console.log(err)
+      setIsFetching(false);
+      console.error(err);
+      if (err.response) {
+        toast.error(err.response.data);
+      } else {
+        toast.error(err.message);
+      }
     }
   };
 
@@ -40,52 +57,40 @@ export default function Register() {
         <label>Username</label>
         <input
           type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           className="registerInput"
           placeholder="Enter Your Username"
           required
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
         />
         <label>Email</label>
         <input
           type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="registerInput"
           placeholder="Enter Your Email"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
         />
         <label>Password</label>
         <div className="passwordInputContainer">
           <input
             type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="registerInput"
             placeholder="Enter Your Password"
             required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
           />
           <i
-            className={`passwordVisibilityIcon ${
-              showPassword ? "fas fa-eye-slash" : "fas fa-eye"
-            }`}
+            className={`passwordVisibilityIcon ${showPassword ? "fas fa-eye-slash" : "fas fa-eye"}`}
             onClick={() => setShowPassword(!showPassword)}
           ></i>
         </div>
-        <button className="registerButton" type="submit">
+        <button className="registerButton" type="submit" disabled={isFetching}>
           Register
         </button>
       </form>
-      {/* <button className="registerLoginButton">
-        <Link className="link" to="/login">
-          Login
-        </Link>
-      </button> */}
-      {error && (
-        <span style={{ color: "red", marginTop: "10px" }}>
-          Something went wrong!
-        </span>
-      )}
     </div>
   );
 }

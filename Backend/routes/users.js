@@ -13,6 +13,7 @@ cloudinary.config({
 router.patch("/:id", async (req, res) => {
   if (req.body.userId === req.params.id) {
     try {
+      console.log(req.body)
       const user = await User.findById(req.params.id);
 
       if (user) {
@@ -127,5 +128,7 @@ router.put('/request/:id',async(req,res)=>{
     res.status(500).json(error)
   }
 })
+
+
 
 module.exports = router;

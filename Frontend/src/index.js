@@ -9,12 +9,12 @@ import { ToastContainer } from 'react-toastify';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Provider store={store}>
       <App />
       <ToastContainer
     position="top-right"
-    autoClose={1500}
+    autoClose={3000}
     hideProgressBar={true}
     newestOnTop={false}
     closeOnClick
@@ -25,5 +25,5 @@ root.render(
     />
     </Provider>
     
-  </React.StrictMode>
+  // </React.StrictMode>
 );

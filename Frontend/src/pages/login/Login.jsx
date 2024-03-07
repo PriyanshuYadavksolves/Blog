@@ -1,41 +1,58 @@
-import {useRef } from "react";
+import { useState } from "react";
 import "./login.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, loadUserData } from "../../features/user/userSlice";
 import { toast } from "react-toastify";
+import Cookies from 'js-cookie'
 
 export default function Login() {
-  const emailRef = useRef();
-  const passwordRef = useRef();
-  const {isFetching} = useSelector((store)=>store.user)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { isFetching } = useSelector((store) => store.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const dispatchh = useDispatch()
-  const navigate = useNavigate()
-  
-
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatchh(LOGIN_START())
+    dispatch(LOGIN_START());
+
+    if (password.length < 6) {
+      toast.error("Password should be at least 6 characters long");
+      dispatch(LOGIN_FAILURE());
+      return;
+    }
+
+    if (email.trim() === "" || password.trim() === "") {
+      toast.error("Input Field Can't Be Empty");
+      dispatch(LOGIN_FAILURE());
+      return;
+    }
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login",{
-        email:emailRef.current.value,
-        password:passwordRef.current.value,
-      })
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password,
+      });
+
       console.log(res.data)
-      dispatchh(LOGIN_SUCCESS(res.data))
-      dispatchh(loadUserData())
-      toast.success('Login : '+res.data.username)
-      if(res.data.isSuperAdmin){
-        navigate('/super/'+res.data._id)
+      Cookies.set("token",res.data.token)
+    
+      dispatch(LOGIN_SUCCESS(res.data.others));
+      dispatch(loadUserData());
+      toast.success(`Login: ${res.data.username}`);
+      
+      if (res.data.isSuperAdmin) {
+        navigate(`/super/${res.data._id}`);
       }
     } catch (err) {
-      dispatchh(LOGIN_FAILURE())
-      console.log(err);
-      toast.error("Invalid Username/Password")
+      dispatch(LOGIN_FAILURE());
+      console.error(err);
+      toast.error("Invalid Username/Password");
     }
   };
+
   return (
     <div className="login">
       <span className="loginTitle">Login</span>
@@ -46,7 +63,8 @@ export default function Login() {
           className="loginInput"
           placeholder="Enter your Email"
           required
-          ref = {emailRef}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <label>Password</label>
         <input
@@ -54,9 +72,10 @@ export default function Login() {
           className="loginInput"
           placeholder="Enter your Password"
           required
-          ref={passwordRef}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
-        <button className="loginButton" type="submit" disabled={isFetching} >
+        <button className="loginButton" type="submit" disabled={isFetching}>
           Login
         </button>
       </form>
