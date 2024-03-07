@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const Post = require("../models/Post");
 const Comment = require("../models/Comment");
+const varifyToken = require('../middleware/varifyToken')
 
 //GET ALL COMMENT OF A BLOG
-router.get("/getComment/:id", async (req, res) => {
+router.get("/getComment/:id",varifyToken, async (req, res) => {
   const { id } = req.params;
   try {
     const comment = await Comment.find({ blogId: id });
@@ -14,7 +15,7 @@ router.get("/getComment/:id", async (req, res) => {
 });
 -
 //POST A COMMENT WITH CONTENT BLOGID USERID USERNAME
-router.post("/createComment/", async (req, res) => {
+router.post("/createComment/",varifyToken ,async (req, res) => {
   try {
     const { content, blogId, userId, username, userPic } = req.body;
     const comment = await Comment.create({
@@ -31,7 +32,7 @@ router.post("/createComment/", async (req, res) => {
 });
 
 //UPDATE COMMENT 
-router.patch('/updateComment/:id',async(req,res)=>{
+router.patch('/updateComment/:id',varifyToken,async(req,res)=>{
   try {
     const {id} = req.params
     const {content} = req.body
@@ -45,7 +46,7 @@ router.patch('/updateComment/:id',async(req,res)=>{
 })
 
 //DELETE COMMENT IF YOU ARE OWNER
-router.delete("/deleteComment/:id", async (req, res) => {
+router.delete("/deleteComment/:id",varifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const comment = await Comment.findByIdAndDelete(id);

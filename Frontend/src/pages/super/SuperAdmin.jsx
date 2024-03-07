@@ -2,21 +2,30 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Oval } from "react-loader-spinner";
 
 import "react-toastify/dist/ReactToastify.css";
 
 import "./super.css";
+import Cookies from 'js-cookie'
 
 const SuperAdmin = () => {
   const location = useLocation();
   const [users, setUsers] = useState([]);
   const id = location.pathname.split("/")[2];
   const [pageNumber, setPageNumber] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setloading] = useState(false);
+  const token = Cookies.get('token')
 
   const handleCheckboxChange = async (id, isAdmin) => {
     try {
       await axios.put("http://localhost:5000/api/super/" + id, {
         isAdmin,
+      },{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
@@ -35,7 +44,11 @@ const SuperAdmin = () => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await axios.delete("http://localhost:5000/api/super/" + id);
+      const res = await axios.delete("http://localhost:5000/api/super/" + id,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log(res.data);
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
       toast.success("User deleted Successfully");
@@ -51,33 +64,42 @@ const SuperAdmin = () => {
         "http://localhost:5000/api/super/getUsers?pageNumber=" + pageNumber,
         {
           id,
+        },{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      console.log("hello");
       setUsers((prevUsers) => [...prevUsers, ...res.data.data]);
       console.log(res.data);
       setPageNumber(pageNumber + 1);
-      toast.success("Page : " + res.data.next.pageNumber);
+      console.log(pageNumber);
+      if (!res.data.next) {
+        setHasMore(false);
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
+   fetchUsers();
   }, []);
 
-  const handleScroll = (e) => {
-    // console.log("hi");
+  const handleScroll = async (e) => {
     const bottom =
       e.target.scrollHeight - Math.ceil(e.target.scrollTop) <=
       e.target.clientHeight;
-    console.log(bottom);
-    if (bottom) {
-      console.log("line 77");
-      fetchUsers();
+    if (bottom && hasMore && !loading) {
+      setloading(true); 
+      try {
+        await fetchUsers(); 
+      } finally {
+        setloading(false); 
+      }
     }
   };
+  
 
   return (
     <div className="center" onScroll={handleScroll}>
@@ -119,6 +141,19 @@ const SuperAdmin = () => {
               </li>
             </ul>
           )
+      )}
+      {loading && (
+        <>
+          <Oval
+            visible={true}
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="oval-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+          />
+        </>
       )}
     </div>
   );

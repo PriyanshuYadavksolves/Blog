@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Post = require("../models/Post");
 const bcrypt = require("bcrypt");
 const cloudinary = require("cloudinary").v2;
+const varifyToken = require('../middleware/varifyToken')
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -10,17 +11,18 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id",varifyToken, async (req, res) => {
   if (req.body.userId === req.params.id) {
     try {
-      console.log(req.body)
       const user = await User.findById(req.params.id);
+      console.log(req.body)
 
       if (user) {
-        if (req.files === undefined && req.body.username === '' && req.body.email === '' && req.body.password === '' ) {
+        console.log("user hai")
+        if (req.files === null && req.body.username === '' && req.body.email === '' && req.body.password === '' ) {
           res.status(500).json("no new data being sent")
           
-        } else if (req.files === undefined && ( req.body.username !== '' || req.body.email !== '' || req.body.password !== '')) {
+        } else if (req.files === null && ( req.body.username !== '' || req.body.email !== '' || req.body.password !== '')) {
           // Only username, email, or password are being updated
           const {username,email,password} = req.body
 
@@ -83,7 +85,7 @@ router.patch("/:id", async (req, res) => {
         return res.status(404).json("User not found");
       }
     } catch (err) {
-      return res.status(500).json(err);
+      return res.status(500).json({msg:"asdsfd",err});
     }
   } else {
     return res.status(401).json("You can update only your account!");
@@ -92,7 +94,7 @@ router.patch("/:id", async (req, res) => {
 
 
 //DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",varifyToken, async (req, res) => {
 
     try {
       // const user = await User.findById(req.params.id);
@@ -109,18 +111,18 @@ router.delete("/:id", async (req, res) => {
 });
 
 //GET USER
-router.get("/:id", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    const { password, ...others } = user._doc;
-    res.status(200).json(others);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+// router.get("/:id",varifyToken, async (req, res) => {
+//   try {
+//     const user = await User.findById(req.params.id);
+//     const { password, ...others } = user._doc;
+//     res.status(200).json(others);
+//   } catch (err) {
+//     res.status(500).json(err);
+//   }
+// });
 
 //REQUEST FOR UPDATED ADMIN REQUEST
-router.put('/request/:id',async(req,res)=>{
+router.put('/request/:id',varifyToken,async(req,res)=>{
   try {
     const user = await User.findByIdAndUpdate(req.params.id, { isRequested: true }, { new: true });
     res.status(200).json(user)
@@ -128,7 +130,6 @@ router.put('/request/:id',async(req,res)=>{
     res.status(500).json(error)
   }
 })
-
 
 
 module.exports = router;

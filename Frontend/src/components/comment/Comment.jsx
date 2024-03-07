@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "./comment.css";
+import Cookies from 'js-cookie'
 
 const Comment = ({ Id }) => {
   const { userData } = useSelector((store) => store.user);
@@ -11,7 +12,8 @@ const Comment = ({ Id }) => {
   const [newComment, setNewComment] = useState("");
   const [updateMode, setUpdateMode] = useState("");
   const [updateComment, setUpdateComment] = useState("");
-  const [editComment, setEditComment] = useState(null); // State to track the comment being edited
+  const [editComment, setEditComment] = useState(null); 
+  const token = Cookies.get('token')
 
   const handleAddComment = async (e) => {
     e.preventDefault();
@@ -28,9 +30,12 @@ const Comment = ({ Id }) => {
           username: userData.username,
           content: newComment,
           userPic: userData.profilePic,
+        },{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      console.log(response.data);
       setComments([...comments, response.data]);
       setNewComment("");
       toast.success("Comment added");
@@ -42,15 +47,20 @@ const Comment = ({ Id }) => {
 
   const handleDelete = async (id) => {
     try {
+      const token = Cookies.get('token');
       const res = await axios.delete(
-        "http://localhost:5000/api/comment/deleteComment/" + id
+        `http://localhost:5000/api/comment/deleteComment/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+          },
+        }
       );
-      console.log(res.data);
-      setComments(comments.filter((com) => com._id != id));
-      toast.info("comment deleted");
+      setComments(comments.filter((com) => com._id !== id));
+      toast.info('Comment deleted');
     } catch (error) {
       console.log(error);
-      toast.error("something went wrong");
+      toast.error('Something went wrong');
     }
   };
 
@@ -60,9 +70,12 @@ const Comment = ({ Id }) => {
         `http://localhost:5000/api/comment/updateComment/${id}`,
         {
           content: updateComment,
+        },{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      console.log(response.data);
       setComments(
         comments.map((comment) =>
           comment._id === id ? { ...comment, content: updateComment } : comment
@@ -80,7 +93,11 @@ const Comment = ({ Id }) => {
   useEffect(() => {
     const getComment = async () => {
       const res = await axios.get(
-        "http://localhost:5000/api/comment/getComment/" + Id
+        "http://localhost:5000/api/comment/getComment/" + Id,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setComments(res.data);
     };

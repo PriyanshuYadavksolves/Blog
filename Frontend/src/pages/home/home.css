@@ -2,38 +2,13 @@
     display: flex;    
     flex-direction: column;
     margin-bottom: 50px;
+    align-items: center;
 }
-.pagination {
-    display: flex;
-    list-style: none;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  
-  .page-item {
-    margin: 0 5px;
-  }
-  
-  .page-item.active .page-link {
-    background-color: #007bff;
-    color: white;
-    border-color: 007bff;
-  }
-  
-  .page-link {
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    color: #333;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
-  .page-link:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .page-link:focus {
-    outline: none;
-  }
+
+.scroll{
+  overflow-y: auto;
+  height: calc(100vh - 50px) !important;
+
+}
+
   

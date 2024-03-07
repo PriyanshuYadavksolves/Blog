@@ -274,7 +274,10 @@ position: relative;
   }
   
   .writeSubmit:hover {
-    background-color: #00796b;
+    background-color: #008cac;
+  }
+  .writeSubmit:disabled {
+    cursor: not-allowed;
   }
   
   .writeIcon {

@@ -11,12 +11,10 @@ cloudinary.config({
 });
 
 //GET ALL POST OF A USER
-router.get("/user/", async (req, res) => {
+router.get("/user/",varifyToken, async (req, res) => {
   const author = req.query.user;
   try {
-    let posts;
-      posts = await Post.findAll({ username:author });
-    
+    const posts = await Post.find({ username:author });
     res.status(200).json(posts);
   } catch (err) {
     res.status(500).json(err);
@@ -24,7 +22,7 @@ router.get("/user/", async (req, res) => {
 });
 
 //GET POST BY TITLE NAME
-router.get('/title/', async (req, res) => {
+router.get('/title/',varifyToken, async (req, res) => {
   const title = req.query.title.trim();
   try {
     let posts;
@@ -42,7 +40,7 @@ router.get('/title/', async (req, res) => {
 
 
 //CREATE POST
-router.post("/", async (req, res) => {
+router.post("/",varifyToken, async (req, res) => {
   try {
     if (!req.files || !req.files.image) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -63,7 +61,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put('/like/:id', async (req, res) => {
+router.put('/like/:id',varifyToken, async (req, res) => {
   try {
     const postId = req.params.id;
     const { userId } = req.body;
@@ -84,7 +82,7 @@ router.put('/like/:id', async (req, res) => {
 
 
 //UPDATE POST
-router.put("/:id", async (req, res) => {
+router.put("/:id",varifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (post.username === req.body.username) {
@@ -109,7 +107,7 @@ router.put("/:id", async (req, res) => {
 });
 
 //DELETE POST
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",varifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (post.username === req.body.username) {
@@ -127,8 +125,38 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.get("/getAllPosts",varifyToken, async (req, res) => {
+  try {
+      const pageNumber = parseInt(req.query.pageNumber) || 0;
+      const limit = 6;
+      const result = {}
+      const totalPosts = await Post.countDocuments()
+      let startIndex = pageNumber * limit;
+      const endIndex = (pageNumber + 1) * limit;
+      result.totalPosts = totalPosts
+      if(startIndex > 0){
+        result.previous = {
+          pageNumber : pageNumber - 1,
+          limit : limit,
+        }
+      }
+      if(endIndex < (await Post.countDocuments())){
+        result.next = {
+          pageNumber:pageNumber+1,
+          limit:limit,
+        }
+      }
+      result.data = await Post.find().sort('_id').skip(startIndex).limit(limit)
+    result.rowsPerPage = limit;
+    return res.status(200).json(result)
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+
 //GET POST
-router.get("/:id", async (req, res) => {
+router.get("/:id",varifyToken, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     res.status(200).json(post);
@@ -137,21 +165,22 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-//GET ALL POSTS
-router.get("/", async (req, res) => {
-  const username = req.query.user;
-  try {
-    let posts;
-    if (username) {
-      posts = await Post.find({ username });
-    } else {
-      posts = await Post.find({});
-    }
-    res.status(200).json(posts);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+// //GET ALL POSTS
+// router.get("/", async (req, res) => {
+//   const username = req.query.user;
+//   try {
+//     let posts;
+//     if (username) {
+//       posts = await Post.find({ username });
+//     } else {
+//       posts = await Post.find({});
+//     }
+//     res.status(200).json(posts);
+//   } catch (err) {
+//     res.status(500).json(err);
+//   }
+// });
+
 
 
 

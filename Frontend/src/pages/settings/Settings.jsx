@@ -4,6 +4,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { UPDATE_FAILURE, UPDATE_START, UPDATE_SUCCESS, loadUserData } from "../../features/user/userSlice";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 // import { useNavigate } from "react-router-dom";
 export default function Settings() {
   const [file, setFile] = useState(null);
@@ -16,6 +17,8 @@ export default function Settings() {
 
   const {userData} = useSelector((store)=>store.user)
   const dispatch = useDispatch();
+
+  const token = Cookies.get('token')
   // const navigate = useNavigate()
   
 
@@ -32,6 +35,7 @@ export default function Settings() {
     };
 
     try {
+
       if (file) {
         updatedUser.image = file;
         const res = await axios.patch(
@@ -39,6 +43,7 @@ export default function Settings() {
           updatedUser,
           {
             headers: {
+              Authorization: `Bearer ${token}`,
               "Content-Type": "multipart/form-data",
             },
           }
@@ -55,7 +60,12 @@ export default function Settings() {
       } else {
         const res = await axios.patch(
           "http://localhost:5000/api/users/" + userData._id,
-          updatedUser
+          updatedUser,          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
           );
           setSuccess(true);
           setFile(null);

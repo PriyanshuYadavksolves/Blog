@@ -5,6 +5,8 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Oval } from "react-loader-spinner";
+import Cookies from 'js-cookie'
 
 export default function Write() {
   const navigate = useNavigate();
@@ -12,9 +14,12 @@ export default function Write() {
   const [desc, setDesc] = useState("");
   const [file, setFile] = useState(null);
   const { userData } = useSelector((store) => store.user);
+  const [loading,setloading] = useState(false)
+  const token = Cookies.get('token')
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setloading(true)
     if (!userData.isAdmin && !userData.isSuperAdmin) {
       toast.error("Sorry! You Are Not Admin");
       return;
@@ -36,13 +41,16 @@ export default function Write() {
         newPost,
         {
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
       toast.success("Blog Created");
       navigate("/post/" + res.data._id);
+      setloading(false)
     } catch (err) {
+      setloading(false)
       console.log(err);
       toast.error("Something Went Wrong");
     }
@@ -92,10 +100,23 @@ export default function Write() {
             onChange={(e) => setDesc(e.target.value)}
           ></textarea>
         </div>
-        <button className="writeSubmit" type="submit">
+        <button className="writeSubmit" type="submit" disabled={loading}>
           Publish
         </button>
       </form>
+      {loading && (
+          <>
+            <Oval
+              visible={true}
+              height="80"
+              width="80"
+              color="#4fa94d"
+              ariaLabel="oval-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </>
+        )}
     </div>
   );
 }

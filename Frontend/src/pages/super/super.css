@@ -18,13 +18,22 @@
 .default {
   box-shadow: 1px 1px 2px rgb(219, 211, 211);
 }
+.default:hover {
+  box-shadow: 1px 1px 2px rgb(107, 107, 107);
+}
 
 .requested {
   box-shadow: 1px 1px 2px red;
 }
+.requested:hover {
+  box-shadow: 1px 1px 2px rgb(187, 35, 35);
+}
 
 .admin {
-  box-shadow: 1px 1px 2px green;
+  box-shadow: 1px 1px 2px rgb(45, 187, 45);
+}
+.admin:hover {
+  box-shadow: 1px 1px 2px rgb(0, 117, 0);
 }
 
 .li {
@@ -36,9 +45,6 @@
   justify-content: space-between;
 }
 
-.li:hover {
-  box-shadow: 1px 1px 2px rgb(107, 107, 107);
-}
 
 .username {
   width: 100px;

@@ -3,9 +3,14 @@ import "./login.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { LOGIN_FAILURE, LOGIN_START, LOGIN_SUCCESS, loadUserData } from "../../features/user/userSlice";
+import {
+  LOGIN_FAILURE,
+  LOGIN_START,
+  LOGIN_SUCCESS,
+  loadUserData,
+} from "../../features/user/userSlice";
 import { toast } from "react-toastify";
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -36,13 +41,13 @@ export default function Login() {
         password,
       });
 
-      console.log(res.data)
-      Cookies.set("token",res.data.token)
-    
+      console.log("login me " + res.data);
+      Cookies.set("token", res.data.token);
+
       dispatch(LOGIN_SUCCESS(res.data.others));
       dispatch(loadUserData());
-      toast.success(`Login: ${res.data.username}`);
-      
+      toast.success(`Login: ${res.data.others.username}`);
+
       if (res.data.isSuperAdmin) {
         navigate(`/super/${res.data._id}`);
       }

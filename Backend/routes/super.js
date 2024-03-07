@@ -1,9 +1,10 @@
 const router = require('express').Router()
 const User = require('../models/User')
+const varifyToken = require('../middleware/varifyToken')
 
 
 //GET ALL Users
-router.post("/getUsers", async (req, res) => {
+router.post("/getUsers",varifyToken, async (req, res) => {
     try {
       const {id} = req.body
       const user = await User.findById(id)
@@ -12,10 +13,9 @@ router.post("/getUsers", async (req, res) => {
           return
       }
         const pageNumber = parseInt(req.query.pageNumber) || 0;
-        const limit = 6;
+        const limit = 5;
         const result = {}
         const totalPosts = await User.countDocuments()
-        // console.log("hello")
         let startIndex = pageNumber * limit;
         const endIndex = (pageNumber + 1) * limit;
         result.totalPosts = totalPosts
@@ -32,7 +32,6 @@ router.post("/getUsers", async (req, res) => {
           }
         }
         result.data = await User.find().sort('_id').skip(startIndex).limit(limit)
-        // console.log(result)
       result.rowsPerPage = limit;
       return res.status(200).json(result)
     } catch (err) {
@@ -40,7 +39,7 @@ router.post("/getUsers", async (req, res) => {
     }
   });
 
-router.put('/:id',async(req,res)=>{
+router.put('/:id',varifyToken,async(req,res)=>{
     try {
         const {id} = req.params
         const {isAdmin} = req.body
@@ -66,7 +65,7 @@ router.put('/:id',async(req,res)=>{
 //     }
 // })
 
-router.get('/:id',async(req,res)=>{
+router.get('/:id',varifyToken,async(req,res)=>{
     try {
         const {id} = req.params   
         const user = await User.findById(id)
@@ -76,7 +75,7 @@ router.get('/:id',async(req,res)=>{
     }
 })
 
-router.delete('/:id',async(req,res)=>{
+router.delete('/:id',varifyToken,async(req,res)=>{
     try {
         const {id} = req.params   
         const user = await User.findByIdAndDelete(id)

@@ -7,8 +7,10 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Comment from "../comment/Comment";
+import Cookies from "js-cookie";
 
 export default function SinglePost() {
+  const token = Cookies.get('token')
   const location = useLocation();
   const navigate = useNavigate();
   const Id = location.pathname.split("/")[2];
@@ -30,7 +32,11 @@ export default function SinglePost() {
       const userId = userData._id;
       const response = await axios.put(
         `http://localhost:5000/api/posts/like/${Id}`,
-        { userId }
+        { userId },{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response.status === 200) {
         setLiked(response.data.likes.includes(userData._id));
@@ -50,7 +56,11 @@ export default function SinglePost() {
 
   useEffect(() => {
     const getPost = async () => {
-      const res = await axios.get("http://localhost:5000/api/posts/" + Id);
+      const res = await axios.get("http://localhost:5000/api/posts/" + Id,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setPost(res.data);
       setTitle(res.data.title);
       setDesc(res.data.desc);
@@ -58,6 +68,7 @@ export default function SinglePost() {
       setImageUrl(res.data.photo);
       setLikeCount(res.data.likes.length);
       setLiked(res.data.likes.includes(userData._id));
+      console.log(res.data)
     };
     getPost();
   }, [Id, userData._id]);
@@ -65,7 +76,12 @@ export default function SinglePost() {
   const handleDelete = async () => {
     try {
       await axios.delete(`http://localhost:5000/api/posts/${post._id}`, {
-        data: { username: userData.isSuperAdmin ? name : userData.username },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          username: userData.isSuperAdmin ? name : userData.username
+        }
       });
       // window.location.replace("/");
       toast.success("Blog Deleted");
@@ -75,6 +91,7 @@ export default function SinglePost() {
       toast.error(err.response.data);
     }
   };
+  
 
   const handleUpdate = async () => {
     try {
@@ -82,6 +99,10 @@ export default function SinglePost() {
         username: userData.isSuperAdmin ? name : userData.username,
         title,
         desc,
+      },{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       setUpdateMode(false);
       toast.success("Blog Updated");
@@ -131,9 +152,7 @@ export default function SinglePost() {
         <div className="singlePostInfo">
           <span className="singlePostAuthor">
             Author:
-            <Link to={`/?user=${post.username}`} className="link">
               <b>{post.username}</b>
-            </Link>
           </span>
           <span className="singlePostDate">
             {new Date(post.createdAt).toDateString()}

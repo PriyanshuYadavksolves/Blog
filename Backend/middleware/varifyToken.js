@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
-  console.log("varify token")
-  const {token} = req.body;
-  console.log(req.body)
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; 
+  console.log("varify me "+token)
 
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    console.log("token fail ho gya")
+    return res.status(401).json({ message: 'Unauthorized in varify' });
   }
 
   try {

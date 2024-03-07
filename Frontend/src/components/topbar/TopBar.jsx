@@ -5,12 +5,14 @@ import { LOGOUT,loadUserData,UPDATE_START,UPDATE_SUCCESS,UPDATE_FAILURE } from "
 import { toast } from "react-toastify";
 import "./topbar.css";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export default function Topbar() {
   const { userData } = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const token = Cookies.get('token')
 
   const handleLogout = () => {
     dispatch(LOGOUT());
@@ -29,22 +31,34 @@ export default function Topbar() {
     }else{
       try {
         dispatch(UPDATE_START())
-        const res = await axios.put("http://localhost:5000/api/users/request/"+userData._id);
+        const res = await axios.put("http://localhost:5000/api/users/request/"+userData._id,{},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         console.log(res.data)
         dispatch(UPDATE_SUCCESS(res.data))
         dispatch(loadUserData())
         toast.success("Request Sent")
       } catch (error) {
         dispatch(UPDATE_FAILURE())
+        console.log(error)
         toast.error("Something Went Wrong!")
       }
     }
   }
 
-  const handleSearch = () => {
-    console.log("Search term:", searchTerm);
-    toast.success(`Search for : ${searchTerm}`)
-    navigate(`/post/title/?title=${searchTerm}`)
+  const handleSearch = (e) => {
+      console.log("Search term:", searchTerm);
+      toast.success(`Search for : ${searchTerm}`)
+      navigate(`/post/title/?title=${searchTerm}`)
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   return (
@@ -76,6 +90,7 @@ export default function Topbar() {
           placeholder="Search..."
           className="topSearchInput"
           value={searchTerm}
+          onKeyDown={handleKeyDown}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <i className="topSearchIcon fas fa-search" onClick={handleSearch}></i>
