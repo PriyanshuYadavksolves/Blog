@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGOUT,loadUserData,UPDATE_START,UPDATE_SUCCESS,UPDATE_FAILURE } from "../../features/user/userSlice";
 import { toast } from "react-toastify";
@@ -66,9 +66,9 @@ export default function Topbar() {
       <div className="topLeft">
         <ul className="topList">
           <li className="topListItem">
-            <Link to="/" className="link">
+            <NavLink to="/" className="link">
               HOME
-            </Link>
+            </NavLink>
           </li>
           {userData && userData.isSuperAdmin && (
             <li className="topListItem">
@@ -78,9 +78,9 @@ export default function Topbar() {
             </li>
           )}
           <li className="topListItem">
-            <Link to="/write" className="link">
+            <NavLink to="/write" className="link">
               WRITE
-            </Link>
+            </NavLink>
           </li>
         </ul>
       </div>
@@ -112,9 +112,9 @@ export default function Topbar() {
         ) : (
           <ul className="topList">
             <li className="topListItem">
-              <Link to="/login" className="link">
+              <NavLink to="/login" className="link">
                 LOGIN
-              </Link>
+              </NavLink>
             </li>
             <li className="topListItem">
               <Link to="/register" className="link">

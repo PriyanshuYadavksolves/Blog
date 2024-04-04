@@ -1,86 +1,122 @@
-import { useState } from "react";
-import "./write.css";
+import { useMemo, useRef, useState } from "react";
+import QuillEditor from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import styles from "./styles.module.css";
 import axios from "axios";
-
-import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { Oval } from "react-loader-spinner";
-import Cookies from 'js-cookie'
 
-export default function Write() {
+import { useSelector } from "react-redux";
+import { Oval } from "react-loader-spinner";
+
+import Cookies from "js-cookie";
+
+const Write = () => {
+  // Editor state
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
-  const [desc, setDesc] = useState("");
-  const [file, setFile] = useState(null);
   const { userData } = useSelector((store) => store.user);
-  const [loading,setloading] = useState(false)
-  const token = Cookies.get('token')
+  const [loading, setloading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setloading(true)
+  const token = Cookies.get("token");
+
+  const [value, setValue] = useState("");
+
+  // Editor ref
+  const quill = useRef();
+
+  // Handler to handle button clicked
+  async function handler() {
+    if(title === ""){
+      return toast.warning('title is not there')
+    }
     if (!userData.isAdmin && !userData.isSuperAdmin) {
       toast.error("Sorry! You Are Not Admin");
       return;
     }
+    setloading(true);
     const newPost = {
       username: userData.username,
-      title,
-      desc,
+      title:title,
+      content: value,
+      userPic: userData.profilePic
     };
-    if (file) {
-      newPost.image = file;
-    } else {
-      toast.warning("Photo Not Uploaded");
-      return;
-    }
+    console.log(newPost)
     try {
+
       const res = await axios.post(
-        "http://localhost:5000/api/posts",
+        "http://localhost:5000/api/upload-images",
         newPost,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
           },
         }
       );
+      // console.log(res.data)
       toast.success("Blog Created");
-      navigate("/post/" + res.data._id);
+
+    
+      // const updatedContent = await response.text();
+      // console.log(updatedContent);
+      setValue(res.data.htmlContent); // Update the editor with the modified content
       setloading(false)
-    } catch (err) {
+      navigate('/blog/'+res.data._id)
+    } catch (error) {
       setloading(false)
-      console.log(err);
-      toast.error("Something Went Wrong");
+      console.error("Error uploading images:", error);
+      // Handle errors appropriately
     }
-  };
+  }
+
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ header: [2, 3, 4, false] }],
+          ["bold", "italic", "underline", "blockquote"],
+          [{ color: [] }],
+          [
+            { list: "ordered" },
+            { list: "bullet" },
+            { indent: "-1" },
+            { indent: "+1" },
+          ],
+          ["link", "image"],
+          ["clean"],
+        ],
+        handlers: {
+          // image: imageHandler,
+        },
+      },
+      clipboard: {
+        matchVisual: true,
+      },
+    }),
+    []
+  );
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "color",
+    "clean",
+  ];
 
   return (
-    <div className="write">
-      {file && (
-        <img
-          className="writeImg"
-          src={URL.createObjectURL(file)}
-          alt="Uploaded"
-        />
-      )}
-      <form className="writeForm" onSubmit={handleSubmit}>
-        <div className="writeFormGroup">
-          <label htmlFor="fileInput" className="uploadLabel">
-            <i className="writeIcon fas fa-image"></i>
-            <span className="uploadText">
-              Click here to upload an image
-            </span>
-          </label>
-          <input
-            type="file"
-            id="fileInput"
-            disabled={!userData.isAdmin && !userData.isSuperAdmin}
-            style={{ display: "none" }}
-            onChange={(e) => setFile(e.target.files[0])}
-          />
-          <input
+    <>
+    
+      <div className={styles.wrapper}>
+      <input
             type="text"
             placeholder="Title"
             className="writeInput"
@@ -89,22 +125,21 @@ export default function Write() {
             autoFocus={true}
             onChange={(e) => setTitle(e.target.value)}
           />
-        </div>
-        <div className="writeFormGroup">
-          <textarea
-            placeholder="Tell your story"
-            type="text"
-            className="writeInput writeText"
-            required
-            disabled={!userData.isAdmin && !userData.isSuperAdmin}
-            onChange={(e) => setDesc(e.target.value)}
-          ></textarea>
-        </div>
-        <button className="writeSubmit" type="submit" disabled={loading}>
-          Publish
+        {/* <label className={styles.label}>Editor Content</label> */}
+        <QuillEditor
+          ref={(el) => (quill.current = el)}
+          className={styles.editor}
+          theme="snow"
+          value={value}
+          formats={formats}
+          modules={modules}
+          onChange={(value) => setValue(value)}
+        />
+        <button onClick={handler} className={styles.btn}>
+          Submit
         </button>
-      </form>
-      {loading && (
+
+        {loading && (
           <>
             <Oval
               visible={true}
@@ -117,6 +152,14 @@ export default function Write() {
             />
           </>
         )}
-    </div>
+
+        <div className={styles.wid}>
+          <h2>HTML Content</h2>
+          {value}
+        </div>
+      </div>
+    </>
   );
-}
+};
+
+export default Write;

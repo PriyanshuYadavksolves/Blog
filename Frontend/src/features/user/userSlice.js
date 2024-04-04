@@ -51,5 +51,6 @@ const userSlice = createSlice({
 });
 
 export const { loadUserData, LOGOUT,LOGIN_FAILURE,LOGIN_START,LOGIN_SUCCESS,UPDATE_FAILURE,UPDATE_START,UPDATE_SUCCESS } = userSlice.actions;
+console.log("safdd"+userSlice)
 
 export default userSlice.reducer;

@@ -12,6 +12,7 @@ import Write from './pages/write/Write';
 import SuperAdmin from './pages/super/SuperAdmin';
 import SingleUser from './pages/singleUser/SingleUser'
 import AllPoss from './pages/allPost/AllPoss'
+import SingleBlog from './components/singleBlog/SingleBlog';
 
 function App() {
   const { userData } = useSelector((store) => store.user);
@@ -26,6 +27,7 @@ function App() {
         <Route path="/write" element={userData ? <Write /> : <Register />} /> 
         <Route path="/settings" element={userData ? <Settings /> : <Register />} /> 
         <Route path="/post/:postId" element={ userData ? <Single /> : <Login/>} /> 
+        <Route path="/blog/:blogId" element={ userData ? <SingleBlog /> : <Login/>} /> 
         <Route path="/post/title/" element={ userData ? <AllPoss /> : <Login/>} /> 
         <Route path="/super/user/" element={userData ? <SingleUser /> : <Login/>} />
         <Route path="/super/:id" element={userData ? <SuperAdmin /> : <Login/>} />

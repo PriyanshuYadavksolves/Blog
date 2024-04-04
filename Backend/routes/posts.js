@@ -128,7 +128,7 @@ router.delete("/:id",varifyToken, async (req, res) => {
 router.get("/getAllPosts",varifyToken, async (req, res) => {
   try {
       const pageNumber = parseInt(req.query.pageNumber) || 0;
-      const limit = 6;
+      const limit = 1;
       const result = {}
       const totalPosts = await Post.countDocuments()
       let startIndex = pageNumber * limit;

@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; 
-  console.log("varify me "+token)
+  // console.log("varify me "+token)
 
   if (!token) {
     console.log("token fail ho gya")

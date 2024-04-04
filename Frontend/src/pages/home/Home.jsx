@@ -43,6 +43,7 @@ export default function Home() {
   }, []);
 
   const handleScroll = async (e) => {
+    console.log("hello")
     const bottom =
       e.target.scrollHeight - Math.ceil(e.target.scrollTop) <=
       e.target.clientHeight;
