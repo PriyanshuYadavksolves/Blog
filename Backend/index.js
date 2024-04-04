@@ -29,15 +29,12 @@ const {connectDB} = require('./db/connectDB');
 const verifyToken = require("./middleware/varifyToken");
 
 
-const S3_BUCKET = "blogtexteditor";
-const REGION = "ap-south-1";
-const ACCESS_KEY = "AKIA2Q6VPC2IMGGRNOHA";
-const SECRET_ACCESS_KEY = "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";
+
 
 AWS.config.update({
-  accessKeyId: ACCESS_KEY,
-  secretAccessKey: SECRET_ACCESS_KEY,
-  region: REGION,
+  accessKeyId: process.env.ACCESS_KEY,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  region: process.env.REGION,
 });
 
 const s3 = new AWS.S3();
@@ -66,7 +63,7 @@ app.post('/api/upload-images',verifyToken, async (req, res) => {
 
           // Option 1: Upload directly to S3 (avoid temporary files)
           const uploadParams = {
-            Bucket: S3_BUCKET,
+            Bucket: process.env.S3_BUCKET,
             Key: filename, // Use a unique filename
             Body: Buffer.from(base64Data, 'base64'),
             ContentType: contentType,
@@ -117,7 +114,7 @@ app.post('/api/delete-images', async (req, res) => {
   const deletePromises = imageUrls.map(async imageUrl => {
     const filename = imageUrl.split('/').pop();
     const params = {
-      Bucket: S3_BUCKET, // Replace with your bucket name
+      Bucket: process.env.S3_BUCKET, // Replace with your bucket name
       Key: filename,
     };
 
@@ -131,7 +128,7 @@ app.post('/api/delete-images', async (req, res) => {
   await Promise.all(deletePromises);
 
   const data = await Blog.findByIdAndDelete(id)
-  console.log(data)
+  console.log(data) 
 
   res.json({ message: 'Image deletion initiated (asynchronous)' });
 });
