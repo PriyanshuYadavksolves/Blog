@@ -216,7 +216,7 @@ position: relative;
   }
    */
   
-   .write {
+   /* .write {
     padding: 50px;
     display: flex;
     flex-direction: column;
@@ -242,17 +242,17 @@ position: relative;
   .writeLabel {
     font-size: 18px;
     margin-bottom: 5px;
-  }
+  } */
   
   .writeInput {
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 12px;
-    width: 100%;
-  }
+    width:-webkit-fill-available;
+    }
   
-  .writeTextarea {
+  /* .writeTextarea {
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -307,4 +307,4 @@ position: relative;
   .uploadText:hover {
     text-decoration: underline;
   }
-  
+   */

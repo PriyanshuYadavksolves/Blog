@@ -118,10 +118,12 @@ const Comment = ({ Id }) => {
                 <span className="commentdate">
                   {new Date(comment.createdAt).toDateString()}
                 </span>
+                
                 {(userData?.isSuperAdmin ||
                   (comment.username === userData?.username &&
                     userData?.isAdmin)) && (
                   <div className="singlePostEdit">
+                    
                     <i
                       className="singlePostIcon fa-regular fa-pen-to-square"
                       onClick={() => {
@@ -154,7 +156,7 @@ const Comment = ({ Id }) => {
                       required
                     ></textarea>
                     <button className="updateCommentButton" type="submit">
-                      Update Comment
+                      Update
                     </button>
                   </form>
                 ) : (

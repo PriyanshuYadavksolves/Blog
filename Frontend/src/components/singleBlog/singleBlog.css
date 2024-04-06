@@ -7,11 +7,18 @@
 
 .desc > p{
     margin: 0 auto;
+    font-size: 20px;
 }
+
+
 
 .singleblogWrapper{
     padding: 20px;
     display: flex;
     flex-direction: column;
+    align-items: center;
 } 
 
+.Blogtitle{
+    font-size: 42px;
+}

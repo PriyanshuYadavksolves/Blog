@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { Oval } from "react-loader-spinner";
 
 import Cookies from "js-cookie";
+import './write.css'
 
 const Write = () => {
   // Editor state
@@ -41,11 +42,10 @@ const Write = () => {
       content: value,
       userPic: userData.profilePic
     };
-    console.log(newPost)
     try {
 
       const res = await axios.post(
-        "http://localhost:5000/api/upload-images",
+        "http://localhost:5000/api/blogs/upload-images",
         newPost,
         {
           headers: {
@@ -56,9 +56,6 @@ const Write = () => {
       // console.log(res.data)
       toast.success("Blog Created");
 
-    
-      // const updatedContent = await response.text();
-      // console.log(updatedContent);
       setValue(res.data.htmlContent); // Update the editor with the modified content
       setloading(false)
       navigate('/blog/'+res.data._id)
@@ -120,12 +117,10 @@ const Write = () => {
             type="text"
             placeholder="Title"
             className="writeInput"
-            required
             disabled={!userData.isAdmin && !userData.isSuperAdmin}
             autoFocus={true}
             onChange={(e) => setTitle(e.target.value)}
           />
-        {/* <label className={styles.label}>Editor Content</label> */}
         <QuillEditor
           ref={(el) => (quill.current = el)}
           className={styles.editor}
@@ -152,11 +147,6 @@ const Write = () => {
             />
           </>
         )}
-
-        <div className={styles.wid}>
-          <h2>HTML Content</h2>
-          {value}
-        </div>
       </div>
     </>
   );

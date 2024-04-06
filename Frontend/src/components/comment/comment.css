@@ -78,6 +78,10 @@
   .updateCommentButton{
     background-color: rgb(40, 142, 142);
     border:3px solid rgb(40, 142, 142);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
   }
   .updateCommentButton:hover{
