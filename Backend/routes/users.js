@@ -11,20 +11,76 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+router.put('/follow/:userId',varifyToken, async (req, res) => {
+  const followerId = req.userId; // Get ID of the logged-in user (follower)
+  const followingId = req.params.userId; // Get ID of the user to follow
+
+  try {
+    const follower = await User.findByIdAndUpdate(followerId, {
+      $addToSet: { following: followingId } // Use $addToSet to avoid duplicates
+    },{new:true});
+
+    const following = await User.findByIdAndUpdate(followingId, {
+      $addToSet: { followers: followerId } // Use $addToSet to avoid duplicates
+    });
+
+    if (!follower || !following) {
+      return res.status(404).json({ message: 'Users not found' });
+    }
+
+    const { password,createdAt,updatedAt,__v, ...others } = follower._doc;
+
+    res.status(200).json(others);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/unfollow/:userId',varifyToken, async (req, res) => {
+  const followerId = req.userId; // Get ID of the logged-in user (follower)
+  const followingId = req.params.userId; // Get ID of the user to unfollow
+
+  try {
+    const follower = await User.findByIdAndUpdate(followerId, {
+      $pull: { following: followingId } // Use $pull to remove followingId
+    },{new:true});
+
+    const following = await User.findByIdAndUpdate(followingId, {
+      $pull: { followers: followerId } // Use $pull to remove followerId
+    });
+
+    if (!follower || !following) {
+      return res.status(404).json({ message: 'Users not found' });
+    }
+
+    const { password,createdAt,updatedAt,__v, ...others } = follower._doc;
+
+    res.status(200).json(others);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
 router.patch("/:id",varifyToken, async (req, res) => {
-  if (req.body.userId === req.params.id) {
+  // console.log(req.body)
+  if (req.userId === req.params.id) {
     try {
       const user = await User.findById(req.params.id);
-      console.log(req.body)
 
       if (user) {
         console.log("user hai")
+        // console.log(req.files)
         if (req.files === null && req.body.username === '' && req.body.email === '' && req.body.password === '' ) {
           res.status(500).json("no new data being sent")
-          
+          // console.log("hello")
         } else if (req.files === null && ( req.body.username !== '' || req.body.email !== '' || req.body.password !== '')) {
           // Only username, email, or password are being updated
           const {username,email,password} = req.body
+          // console.log("hello 2")
 
           if (username !== user.username) {
             // Update username in related posts
@@ -39,10 +95,12 @@ router.patch("/:id",varifyToken, async (req, res) => {
             },
             { new: true }
           );
+
           return res.status(200).json(updatedUser);
 
         } else if(req.files.image && req.body.username === '' && req.body.email === '' && req.body.password === '') {
           //only file being updated
+          // console.log("ji haaa")
           const file = req.files.image;
           const result = await cloudinary.uploader.upload(file.tempFilePath, {
             folder: "images",
@@ -76,7 +134,6 @@ router.patch("/:id",varifyToken, async (req, res) => {
                 password : password ? await bcrypt.hash(req.body.password, 10) : user.password,
                 profilePic: result.secure_url,
               },
-          
             { new: true }
           );
           return res.status(200).json(updatedUser);

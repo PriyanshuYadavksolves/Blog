@@ -20,9 +20,25 @@ const blogPostSchema = new mongoose.Schema(
       type:String,
       require:true,
   },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Store user IDs who liked the post
+  likes: {
+    type: [String], // Array of user IDs who liked the post
+    default: [],
+  },
   },
   { timestamps: true }
 );
+
+// Add a custom method to like a blog post
+blogPostSchema.methods.like = async function (userId) {
+  if (this.likes.includes(userId)) {
+    // User already liked the post, remove their like
+    this.likes = this.likes.filter((id) => id !== userId);
+  } else {
+    // User hasn't liked the post yet, add their like
+    this.likes.push(userId);
+  }
+  await this.save(); // Save the updated document
+};
+
 
 module.exports = mongoose.model("BlogPost", blogPostSchema);

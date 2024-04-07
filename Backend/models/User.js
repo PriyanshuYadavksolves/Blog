@@ -31,7 +31,16 @@ const UserSchema = new mongoose.Schema(
     isRequested:{
       type:Boolean,
       default:false,
-    }
+    },
+    followers: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User' // Reference the User model for followers
+    }],
+    following: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User' // Reference the User model for following
+    }]
+
   },
   { timestamps: true }
 );

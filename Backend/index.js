@@ -1,18 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const fileUpload = require('express-fileupload')
 
-const app = express();
-
-const { connectDB } = require("./db/connectDB");
-
-app.use(
-  cors({
-    origin: "*",
-  })
-  );
-  app.use(express.json());
-  
 
 const authRoute = require("./routes/auth");
 const userRoute = require("./routes/users");
@@ -20,7 +10,21 @@ const postRoute = require("./routes/posts");
 const superAdmin = require("./routes/super");
 const commentRoute = require("./routes/comment");
 const blogRoute = require("./routes/blog");
+const { connectDB } = require("./db/connectDB");
 
+const app = express();
+
+
+app.use(
+  cors({
+    origin: "*",
+  })
+  );
+  app.use(express.json());
+  app.use(fileUpload({
+    useTempFiles: true,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10 MB limit
+  }));
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);

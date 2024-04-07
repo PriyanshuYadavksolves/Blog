@@ -24,6 +24,29 @@ router.get("/:id", varifyToken, async (req, res) => {
   }
 });
 
+// Route to like a blog post
+router.put("/like/:id",varifyToken, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.userId; 
+
+  try {
+    const blogPost = await Blog.findById(id);
+    if (!blogPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+   await blogPost.like(userId);
+   const blog = await blogPost.save();
+
+    res.json({ message: "Liked successfully", blog });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
 //Create Blog
 router.post("/upload-images", varifyToken, async (req, res) => {
   try {
@@ -87,7 +110,7 @@ router.post("/upload-images", varifyToken, async (req, res) => {
   }
 });
 
-router.put("/update-images", varifyToken, async (req, res) => {
+router.patch("/update-images", varifyToken, async (req, res) => {
   try {
     const { id, content } = req.body;
 

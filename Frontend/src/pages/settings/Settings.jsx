@@ -1,8 +1,13 @@
 import "./settings.css";
-import {useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { UPDATE_FAILURE, UPDATE_START, UPDATE_SUCCESS, loadUserData } from "../../features/user/userSlice";
+import {
+  UPDATE_FAILURE,
+  UPDATE_START,
+  UPDATE_SUCCESS,
+  loadUserData,
+} from "../../features/user/userSlice";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 // import { useNavigate } from "react-router-dom";
@@ -12,80 +17,65 @@ export default function Settings() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [success, setSuccess] = useState(false);
-  const [error,setError] = useState(null);
-  const [loading,setLoading] = useState(false)
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const {userData} = useSelector((store)=>store.user)
+  const { userData } = useSelector((store) => store.user);
   const dispatch = useDispatch();
 
-  const token = Cookies.get('token')
+  const token = Cookies.get("token");
   // const navigate = useNavigate()
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(UPDATE_START())
-    setSuccess(false)
-    setLoading(true)
-    const updatedUser = {
-      userId: userData._id,
-      username,
-      email,
-      password,
-    };
-
-    try {
-
-      if (file) {
-        updatedUser.image = file;
-        const res = await axios.patch(
-          "http://localhost:5000/api/users/" + userData._id,
-          updatedUser,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        setSuccess(true);
-        setFile(null);
-        setError(false)
-        dispatch(UPDATE_SUCCESS(res.data))
-        dispatch(loadUserData())
-        setTimeout(()=>{
-          setSuccess(false)
-        },4000)
-        
-      } else {
-        const res = await axios.patch(
-          "http://localhost:5000/api/users/" + userData._id,
-          updatedUser,          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-          );
-          setSuccess(true);
-          setFile(null);
-          setError(false)
-          dispatch(UPDATE_SUCCESS(res.data))
-          dispatch(loadUserData())
-          setTimeout(()=>{
-            setSuccess(false)
-          },4000)     
-      }
-    } catch (err) {
-      console.log(err)
-      toast.error(err.response.data)
-      dispatch(UPDATE_FAILURE())
-      setError(true)
-      setTimeout(()=>{
-        setError(false)
-      },4000)
+    dispatch(UPDATE_START());
+    setSuccess(false);
+    setLoading(true);
+  
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("email", email);
+    formData.append("password", password);
+  
+    if (file) {
+      formData.append("image", file); // Append file if selected
     }
-    setLoading(false)
+  
+    try {
+      const res = await axios.patch(
+        "http://localhost:5000/api/users/" + userData._id,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data", // Set Content-Type for multipart data
+          },
+        }
+      );
+      console.log(res.data)
+      setSuccess(true);
+      setFile(null);
+      setError(false);
+      setUsername('')
+      setEmail('')
+      setPassword('')
+      dispatch(UPDATE_SUCCESS(res.data));
+      dispatch(loadUserData()); // Update user data locally
+      setTimeout(() => {
+        setSuccess(false);
+      }, 4000);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response.data);
+      dispatch(UPDATE_FAILURE());
+      setError(true);
+      setTimeout(() => {
+        setError(false);
+      }, 4000);
+    } finally {
+      setLoading(false); // Always set loading to false after the request completes
+    }
   };
   // const handleDelete = async() =>{
   //   try {
@@ -96,11 +86,10 @@ export default function Settings() {
   //     // window.location.replace("/register");
   //   } catch (error) {
   //     console.log(error)
-  //   }    
+  //   }
   // }
   return (
     <div className="settings">
-
       <div className="settingWrapper">
         <div className="settingTitle">
           <span className="settingsUpdateTitle">Update your account</span>
@@ -124,6 +113,16 @@ export default function Settings() {
               style={{ display: "none" }}
               onChange={(e) => setFile(e.target.files[0])}
             />
+            <div className="flex ml-10 gap-10">
+              <div className="flex flex-col items-center">
+                <span>{userData.followers.length}</span>
+                <button className="hover:text-slate-700">Followers</button>
+              </div>
+              <div className="flex flex-col items-center">
+                <span>{userData.following.length}</span>
+                <button className="hover:text-slate-700">Followings</button>
+              </div>
+            </div>
           </div>
           <label>UserName</label>
           <input
@@ -140,6 +139,7 @@ export default function Settings() {
           <label>Password</label>
           <input
             type="password"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <button className="settingsSubmit" type="submit" disabled={loading}>
