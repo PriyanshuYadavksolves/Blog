@@ -117,9 +117,9 @@ export default function Topbar() {
               </NavLink>
             </li>
             <li className="topListItem">
-              <Link to="/register" className="link">
+              <NavLink to="/register" className="link">
                 REGISTER
-              </Link>
+              </NavLink>
             </li>
           </ul>
         )}

@@ -136,9 +136,7 @@ router.post("/upload-images", varifyToken, async (req, res) => {
     });
 
     const followerEmails = await getFollowerEmails(blog.userId);
-    const regex = /<body>(.*?)<\/body>/s;
-    const match = blog.htmlContent.match(regex);
-    const blogContent = match[1]
+
 
     await sendNewBlogPostNotification(blog.title,blog._id,followerEmails,blog.coverPic,blog.userPic,blog.username)
 

@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const User = require("../models/User");
-const Post = require("../models/Post");
 const bcrypt = require("bcrypt");
 const cloudinary = require("cloudinary").v2;
 const varifyToken = require("../middleware/varifyToken");
