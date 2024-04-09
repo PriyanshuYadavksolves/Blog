@@ -24,6 +24,10 @@ const blogPostSchema = new mongoose.Schema(
     type: [String], // Array of user IDs who liked the post
     default: [],
   },
+  coverPic : {
+    type:String,
+    require:true,
+  },
   },
   { timestamps: true }
 );

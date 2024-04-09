@@ -7,6 +7,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { Oval } from "react-loader-spinner";
 import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { LOGOUT } from "../../features/user/userSlice";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -15,6 +17,7 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setloading] = useState(false);
   const token = Cookies.get('token')
+  const dispatch = useDispatch()
 
   const fetchPosts = async () => {
     try {
@@ -35,11 +38,29 @@ export default function Home() {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
+      Cookies.remove('token')
+      dispatch(LOGOUT())
+
     }
   };
 
+  const fetchBlog = async() =>{
+    try {
+      const res = await axios.get('http://localhost:5000/api/blogs/allBlog',{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      // console.log(res.data)
+      setPosts(res.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
-    fetchPosts();
+    // fetchPosts();
+    fetchBlog();
   }, []);
 
   const handleScroll = async (e) => {
@@ -58,7 +79,8 @@ export default function Home() {
   };
 
   return (
-    <div className="scroll" onScroll={handleScroll}>
+    // <div className="scroll" onScroll={handleScroll}>
+    <div className="scroll">
       <Header />
       <div className="home">
         {posts.length === 0 && <h1>No Post To Display</h1>}

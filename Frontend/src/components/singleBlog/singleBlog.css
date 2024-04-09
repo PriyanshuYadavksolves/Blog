@@ -5,11 +5,27 @@
     row-gap: 20px;
 }
 
+.desc{
+    overflow-wrap: anywhere;
+}
+
 .desc > p{
-    margin: 0 auto;
     font-size: 20px;
 }
 
+.ql-editor >p > img{
+    margin: 0px auto;
+}
+
+.ql-syntax{
+    background: rgb(235, 235, 235);
+    padding: 32px;
+}
+
+.htmlcontent > p > img{
+    width: 100%;
+    object-fit: cover;
+}
 
 .singleblogWrapper{
     padding: 20px;
@@ -18,9 +34,7 @@
     align-items: center;
 } 
 
-.Blogtitle{
-    font-size: 42px;
-}
+
 .commentCenter{
     width: 100%;
     display: flex;

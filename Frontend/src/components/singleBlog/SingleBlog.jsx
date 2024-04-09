@@ -34,7 +34,7 @@ const SingleBlog = () => {
             { indent: "-1" },
             { indent: "+1" },
           ],
-          ["link", "image"],
+          ["link", "image","code-block"],
         ],
         handlers: {
           // image: imageHandler,
@@ -60,6 +60,7 @@ const SingleBlog = () => {
     "link",
     "image",
     "color",
+    "code-block"
   ];
 
   const quill = useRef();
@@ -149,19 +150,23 @@ const SingleBlog = () => {
     const fetchBlog = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/blogs/" + blogId,
+          "http://localhost:5000/api/blogs/blog/" + blogId,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        // console.log(res.data);
+        console.log(res.data);
+        if(res.data === null){
+          navigate("/")
+        }
         const regex = /<body>(.*?)<\/body>/s;
         const match = res.data.htmlContent.match(regex);
         setTitle(res.data.title);
         setValue(match[1]);
         setComment(res.data);
+        console.log(res.data)
         setLikeCount(res.data.likes.length);
         setLiked(res.data.likes.includes(userData._id));
         setFollowed(userData.following.includes(res.data.userId));
@@ -253,7 +258,7 @@ const SingleBlog = () => {
 
   return (
     <div className="singleblogWrapper">
-      <div className="desc">
+      <div className="desc overscroll-auto">
         {updateMode ? (
           <input
             type="text"
@@ -265,7 +270,7 @@ const SingleBlog = () => {
             onChange={(e) => setTitle(e.target.value)}
           />
         ) : (
-          <h1 className="Blogtitle">{title}</h1>
+          <h1 className=" text-3xl font-semibold">{title}</h1>
         )}
 
         <div className="flex p-2.5 justify-between border-b-2">
@@ -353,7 +358,10 @@ const SingleBlog = () => {
             onChange={(value) => setValue(value)}
           />
         ) : (
+          <span className="htmlcontent flex flex-col gap-2.5">
+
           <>{parse(value)}</>
+          </span>
         )}
         {updateMode && (
           <button onClick={handleUpdateComment} className="updateCommentButton">

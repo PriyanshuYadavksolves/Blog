@@ -2,9 +2,11 @@ const router = require("express").Router();
 const User = require("../models/User");
 const Blog = require("../models/Blog");
 const varifyToken = require("../middleware/varifyToken");
+const fs = require('fs')
 
 const { S3Client, PutObjectCommand, DeleteObjectCommand  } = require("@aws-sdk/client-s3");
 const cheerio = require("cheerio");
+const sendNewBlogPostNotification = require("../emailServices/sendNewBlogPostNotification");
 
 const s3Client = new S3Client({
   region: process.env.REGION,  // Replace with your desired region
@@ -14,8 +16,18 @@ const s3Client = new S3Client({
   }
 });
 
+//GET ALL BLOG
+router.get('/allBlog',varifyToken,async(req,res)=>{
+  try {
+    const allBlog = await Blog.find({})
+    res.status(200).json(allBlog)
+  } catch (error) {
+    res.status(500).json(error)
+  }
+})
+
 //GET BLOG
-router.get("/:id", varifyToken, async (req, res) => {
+router.get("/blog/:id", varifyToken, async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
     res.status(200).json(blog);
@@ -23,6 +35,7 @@ router.get("/:id", varifyToken, async (req, res) => {
     res.status(500).json(err);
   }
 });
+
 
 // Route to like a blog post
 router.put("/like/:id",varifyToken, async (req, res) => {
@@ -45,14 +58,31 @@ router.put("/like/:id",varifyToken, async (req, res) => {
   }
 });
 
-
-
 //Create Blog
 router.post("/upload-images", varifyToken, async (req, res) => {
+  let { username, title, content, userPic } = req.body;
+
+  const coverPic = req.files.coverPic;
+    const contentType = coverPic.mimetype;
+    const filePath = coverPic.tempFilePath
+
+    // Optional: Generate unique filename
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const uniqueFilename = `${randomString}`;
+
+    const uploadParams = {
+      Bucket: process.env.S3_BUCKET,
+      Key: uniqueFilename,
+      Body: fs.createReadStream(filePath),
+      ContentType: contentType,
+      // ACL: 'public-read', // Optional: Make image publicly accessible on S3
+    };
+
+    const uploadResult = await s3Client.send(new PutObjectCommand(uploadParams));
+    const s3CoverPic = `https://${process.env.S3_BUCKET}.s3.${process.env.REGION}.amazonaws.com/${uniqueFilename}`; // Construct S3 URL
+    // console.log(s3CoverPic)
+
   try {
-
-    let { username, title, content, userPic } = req.body;
-
     const $ = cheerio.load(content);
     const images = $("img");
 
@@ -102,13 +132,28 @@ router.post("/upload-images", varifyToken, async (req, res) => {
       userId: req.userId,
       username,
       userPic,
+      coverPic:s3CoverPic
     });
+
+    const followerEmails = await getFollowerEmails(blog.userId);
+    const regex = /<body>(.*?)<\/body>/s;
+    const match = blog.htmlContent.match(regex);
+    const blogContent = match[1]
+
+    await sendNewBlogPostNotification(blog.title,blog._id,followerEmails,blog.coverPic,blog.userPic,blog.username)
+
     res.status(200).json(blog);
   } catch (error) {
     console.error("Error processing images:", error);
     res.status(500).send("Error processing images");
   }
 });
+
+async function getFollowerEmails(userId) {
+  const followers = await User.find({ following: userId });
+  return followers.map(follower => follower.email); // Extract email addresses
+}
+
 
 router.patch("/update-images", varifyToken, async (req, res) => {
   try {
@@ -200,16 +245,13 @@ router.patch("/update-images", varifyToken, async (req, res) => {
     // console.log("hello 2")
     
     const updatedContent = $.html();
-    let { username, title, userPic } = req.body;
+    let { title } = req.body;
 
     const updatedBlog = await Blog.findByIdAndUpdate(
       id,
       {
         title: title, 
-        htmlContent: updatedContent,
-        userId: req.userId,
-        username: username, 
-        userPic: userPic, 
+        htmlContent: updatedContent
       },
       { new: true }
     );

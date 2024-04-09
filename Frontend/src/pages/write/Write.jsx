@@ -9,8 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Oval } from "react-loader-spinner";
 
+
 import Cookies from "js-cookie";
-import './write.css'
+import "./write.css";
 
 const Write = () => {
   // Editor state
@@ -18,6 +19,7 @@ const Write = () => {
   const [title, setTitle] = useState("");
   const { userData } = useSelector((store) => store.user);
   const [loading, setloading] = useState(false);
+  const [file, setFile] = useState(null);
 
   const token = Cookies.get("token");
 
@@ -27,10 +29,18 @@ const Write = () => {
   const quill = useRef();
 
   // Handler to handle button clicked
-  async function handler() {
-    if(title === ""){
-      return toast.warning('title is not there')
+  const handler = async(e) => {
+    e.preventDefault(); // Prevent default form submission
+
+    if(title == ""){
+      toast.warning("Please give Title")
+      return 
     }
+    else if(value== ""){
+      toast.warning('Please Write Something About Blog')
+      return
+    }
+  
     if (!userData.isAdmin && !userData.isSuperAdmin) {
       toast.error("Sorry! You Are Not Admin");
       return;
@@ -38,29 +48,38 @@ const Write = () => {
     setloading(true);
     const newPost = {
       username: userData.username,
-      title:title,
+      title: title,
       content: value,
-      userPic: userData.profilePic
+      userPic: userData.profilePic,
+      coverPic : file || "https://img.freepik.com/free-vector/blogging-fun-content-creation-online-streaming-video-blog-young-girl-making-selfie-social-network-sharing-feedback-self-promotion-strategy-vector-isolated-concept-metaphor-illustration_335657-855.jpg"
     };
-    try {
+    const formData = new FormData();
+    formData.append("username",userData.username)
+    formData.append("title",title)
+    formData.append("content",value)
+    formData.append("userPic",userData.profilePic)
+    formData.append("coverPic",file || "https://img.freepik.com/free-vector/blogging-fun-content-creation-online-streaming-video-blog-young-girl-making-selfie-social-network-sharing-feedback-self-promotion-strategy-vector-isolated-concept-metaphor-illustration_335657-855.jpg")
 
+    console.log(formData)
+    try {
       const res = await axios.post(
         "http://localhost:5000/api/blogs/upload-images",
-        newPost,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data", // Set Content-Type for multipart data
           },
         }
       );
-      // console.log(res.data)
+      console.log(res.data)
       toast.success("Blog Created");
 
-      setValue(res.data.htmlContent); // Update the editor with the modified content
-      setloading(false)
-      navigate('/blog/'+res.data._id)
+      // setValue(res.data.htmlContent); // Update the editor with the modified content
+      setloading(false);
+      navigate("/blog/" + res.data._id);
     } catch (error) {
-      setloading(false)
+      setloading(false);
       console.error("Error uploading images:", error);
       // Handle errors appropriately
     }
@@ -71,7 +90,7 @@ const Write = () => {
       toolbar: {
         container: [
           [{ header: [2, 3, 4, false] }],
-          ["bold", "italic", "underline", "blockquote"],
+          ["bold", "italic", "underline"],
           [{ color: [] }],
           [
             { list: "ordered" },
@@ -79,8 +98,9 @@ const Write = () => {
             { indent: "-1" },
             { indent: "+1" },
           ],
-          ["link", "image"],
+          ["link", "image","code-block"],
           ["clean"],
+
         ],
         handlers: {
           // image: imageHandler,
@@ -99,7 +119,6 @@ const Write = () => {
     "italic",
     "underline",
     "strike",
-    "blockquote",
     "list",
     "bullet",
     "indent",
@@ -107,32 +126,60 @@ const Write = () => {
     "image",
     "color",
     "clean",
+    "code-block"
   ];
 
   return (
     <>
-    
       <div className={styles.wrapper}>
-      <input
+        <form className="flex flex-col gap-5" onSubmit={handler}>
+          <input
             type="text"
             placeholder="Title"
             className="writeInput"
+            name="title"
             disabled={!userData.isAdmin && !userData.isSuperAdmin}
             autoFocus={true}
+            required
             onChange={(e) => setTitle(e.target.value)}
           />
+
+          {file && (
+            <div className="imagePreview">
+              <img
+                src={file && URL.createObjectURL(file)}
+                alt="selected image"
+              />
+            </div>
+          )}
+
+            <div className="flex gap-2.5 items-center">
+
+          <label htmlFor="fileInput">
+            <span> Cover Photo :</span>
+          </label>
+          <input
+            type="file"
+            id="fileInput"
+            name="file"
+            required
+            placeholder="asdfs"
+            onChange={(e) => setFile(e.target.files[0])}
+            />
+            </div>
+
         <QuillEditor
           ref={(el) => (quill.current = el)}
-          className={styles.editor}
           theme="snow"
           value={value}
           formats={formats}
           modules={modules}
           onChange={(value) => setValue(value)}
-        />
-        <button onClick={handler} className={styles.btn}>
+          />
+        <button type="submit" className=" self-start bg-blue-700 text-white py-2 px-8 rounded-md">
           Submit
         </button>
+         </form>
 
         {loading && (
           <>
