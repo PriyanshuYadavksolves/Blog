@@ -80,7 +80,7 @@ export default function Register() {
                 id="Username"
                 placeholder="Username"
                 {...register("username", {
-                  // required: "Username is required",
+                  required: "Username is required",
                 })}
               />
               {errors.username && (
@@ -121,13 +121,13 @@ export default function Register() {
               <div className="relative ">
                 <input
                   className="w-full h-[40px] rounded-[8px] border-[1px] border-[#E9F0FB] p-[12px] "
-                  type={showPassword ? "text" : "password"} //here i used showPassword state to hide and show password
+                  type={showPassword ? "text" : "password"} //
                   name="Password"
                   id="Password"
                   autoComplete="current-password"
                   placeholder="Password"
                   {...register("password", {
-                    // required: "Password is required",
+                    required: "Password is required",
                     minLength: {
                       value: 5,
                       message: "Password should be at-least 5 characters",

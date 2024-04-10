@@ -19,7 +19,7 @@ module.exports = ({ coverImg, blogTitle, userPic, userName, blogId }) => {
     font-weight: bold;
     letter-spacing: 5px; ">New Blog</p>
     
-            <img class="" style="display: block; width: 400px; border-radius: 10px; margin: 0px auto;
+            <img class="" style="display: block; width: 100%; border-radius: 10px; margin: 0px auto;
     object-fit: contain;" src="${coverImg}" alt="${coverImg}">
     
             <h2><a href="http://localhost:3000/blog/${blogId}" style=" text-decoration: none; color: blue;">

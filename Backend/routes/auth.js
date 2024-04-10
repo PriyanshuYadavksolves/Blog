@@ -33,13 +33,13 @@ router.post("/register",checkUserExists, async (req, res) => {
     const verificationToken = crypto.randomBytes(40).toString('hex');
     console.log("hello")
 
-    const user = await User.create({
-      username,
-      email,
-      password: hashedPass,
-      profilePic: profilePic,
-      verificationToken,
-    });
+    // const user = await User.create({
+    //   username,
+    //   email,
+    //   password: hashedPass,
+    //   profilePic: profilePic,
+    //   verificationToken,
+    // });
 
     const url = `http://localhost:3000/verify/${verificationToken}`;
     const verificationEmailContent = verificationEmail({ username ,url });

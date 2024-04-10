@@ -36,27 +36,30 @@ export default function Login() {
   const onSubmit = async(data) => {
 
     const {username,email,password} = data
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        username,
+      dispatch(LOGIN_START());
+
+      const res = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password,
-        profilePic:
-          "https://tse1.mm.bing.net/th?id=OIP.KEJaw671I5WYuftNN0IOZAAAAA&pid=Api&P=0&h=220",
       });
       console.log(res.data)
+      Cookies.set("token", res.data.token);
+      dispatch(LOGIN_SUCCESS(res.data.others));
+      dispatch(loadUserData());
+      toast.success(`Login: ${res.data.others.username}`);
+      if (res.data.isSuperAdmin) {
+        navigate(`/super/${res.data._id}`);
+      }
+      
       setSuccess(true)
-
-      toast.success("Verification Email Sent");
+      // toast.success("Verification Email Sent");
       // res.data && navigate("/login");
     } catch (err) {
-      setSuccess(false);
+      dispatch(LOGIN_FAILURE());
       console.error(err);
-      if (err.response) {
-        toast.error(err.response.data);
-      } else {
-        toast.error(err.message);
-      }
+      toast.error("Invalid Username/Password");
     }
     reset();
   };
@@ -118,7 +121,7 @@ export default function Login() {
                   autoComplete="current-password"
                   placeholder="Password"
                   {...register("password", {
-                    // required: "Password is required",
+                    required: "Password is required",
                     minLength: {
                       value: 5,
                       message: "Password should be at-least 5 characters",
@@ -183,8 +186,9 @@ export default function Login() {
 
             <button
               type="submit"
+              disabled={isFetching}
               className="flex w-full h-[46px] rounded-[8px] text-[18px] font-[600] leading-[24px] justify-center items-center bg-[#3086F8] text-white
-                  "
+              disabled:cursor-not-allowed"
             >
               Login
             </button>
